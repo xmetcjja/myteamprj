@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+	    http://www.springframework.org/schema/context
+	    http://www.springframework.org/schema/context/spring-context-4.0.xsd
+	    http://www.springframework.org/schema/aop
+	    http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+	    http://www.springframework.org/schema/task
+	    http://www.springframework.org/schema/task/spring-task-4.0.xsd
+	    http://www.springframework.org/schema/tx
+	    http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+    <!--开启task定时任务的注解-->
+    <task:annotation-driven></task:annotation-driven>
+    <!--注解扫描配置-->
+    <context:component-scan base-package="com.etc">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"></context:exclude-filter>
+    </context:component-scan>
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" p:order="1">
+        <property name="locations">
+            <list>
+                <value>classpath:jdbc.properties</value>
+                <value>classpath:redis.properties</value>
+            </list>
+        </property>
+    </bean>
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName" value="${mysql.driver}"></property>
+        <property name="url" value="${mysql.url}"></property>
+        <property name="username" value="${mysql.username}"></property>
+        <property name="password" value="${mysql.password}"></property>
+        <property name="initialSize" value="${mysql.initialSize}"></property>
+        <property name="maxActive" value="${mysql.maxActive}"></property>
+        <property name="maxIdle" value="${mysql.maxIdle}"></property>
+        <property name="minIdle" value="${mysql.minIdle}"></property>
+        <property name="maxWait" value="${mysql.maxWait}"></property>
+    </bean>
+    <!--sqlSessionFactory配置-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <!--影射文件的位置-->
+        <property name="mapperLocations" value="classpath:mapper/*.xml"></property>
+        <!--类的别名-->
+        <property name="typeAliasesPackage" value="com.etc.entity"></property>
+        <!-- 配置pagehelper分页插件 -->
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageInterceptor">
+                    <property name="properties">
+                        <!--使用下面的方式配置参数，一行配置一个 -->
+                        <value>helperDialect=mysql</value>
+                    </property>
+                </bean>
+            </array>
+        </property>
+    </bean>
+    <!--配置扫描器 MapperScannerConfigurer对Dao接口的实现-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.etc.dao"></property>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+    </bean>
+    <!--事务管理器-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+    <!--事务通知-->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <!--<tx:method name="*query*" read-only="true"/>
+            <tx:method name="*get*" read-only="true"></tx:method>-->
+            <tx:method name="*" rollback-for="java.lang.Exception"></tx:method>
+        </tx:attributes>
+    </tx:advice>
+    <aop:config>
+        <aop:pointcut id="pointCut" expression="execution(* com.etc.service.impl.*.*(..))"></aop:pointcut>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="pointCut"></aop:advisor>
+    </aop:config>
+    <!--引入redis配置文件-->
+    <import resource="redisConfig.xml"></import>
+</beans>

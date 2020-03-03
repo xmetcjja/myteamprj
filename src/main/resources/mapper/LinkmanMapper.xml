@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.etc.dao.LinkmanDao">
+    <insert id="add" parameterType="Linkman" useGeneratedKeys="true" keyProperty="lid">
+        insert into linkman(lname,ltel,sid) values(#{lname},#{ltel},#{stu.sid})
+    </insert>
+    <update id="mod" parameterType="Linkman">
+        update linkman set lname=#{lname},ltel=#{ltel} where lid=#{lid}
+    </update>
+    <delete id="del" parameterType="int">
+        delete from linkman where lid = #{lid}
+    </delete>
+    <select id="get" parameterType="int" resultType="Linkman">
+        select * from Linkman where lid=#{lid}
+    </select>
+    <select id="query" parameterType="Linkman" resultType="Linkman">
+        select * from Linkman where sid = #{stu.sid} order by lid
+    </select>
+</mapper>

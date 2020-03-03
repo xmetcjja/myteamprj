@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.etc.dao.StuDao">
+    <resultMap id="stuMap" type="Stu" autoMapping="true">
+        <id property="sid" column="sid"></id>
+        <association property="cla" javaType="Cla">
+            <id column="cid" property="cid"></id>
+            <result property="cname" column="cname"></result>
+        </association>
+    </resultMap>
+    <insert id="add" parameterType="Stu" useGeneratedKeys="true" keyProperty="sid">
+        insert into Stu(sname,sex,xueli,cid) values(#{sname},#{sex},#{xueli},#{cla.cid})
+    </insert>
+    <update id="mod" parameterType="Stu">
+        update Stu set sname=#{sname},sex=#{sex},xueli=#{xueli},cid=#{cla.cid} where sid=#{sid}
+    </update>
+    <delete id="del" parameterType="int">
+        delete from Stu where sid = #{sid}
+    </delete>
+    <select id="get" parameterType="int" resultMap="stuMap">
+        select * from Stu a left join Cla b on a.cid=b.cid where sid=#{sid}
+    </select>
+    <select id="query" parameterType="Stu" resultMap="stuMap">
+        select * from Stu a left join Cla b on a.cid=b.cid
+        <where>
+            <if test="sname != null and sname != ''">
+                sname like '%${sname}%'
+            </if>
+            <if test="sex != null and sex != ''">
+                and sex = #{sex}
+            </if>
+        </where>
+        order by sid desc
+    </select>
+</mapper>

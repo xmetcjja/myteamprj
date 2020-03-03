@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.etc.dao.QueueDao">
+    <insert id="add" parameterType="Queue">
+        insert into Queue_info(queue_no,busi_type,queue_time,queue_status) values(#{queueNo},#{busiType},#{queueTime},#{queueStatus})
+    </insert>
+    <update id="mod" parameterType="Queue">
+        update Queue_info set queue_status='1' where queue_no=#{queueNo}
+    </update>
+    <delete id="del" parameterType="String">
+        delete from queue_info where queue_no = #{queueNo}
+    </delete>
+    <delete id="delAll">
+        delete from queue_info
+    </delete>
+    <select id="get" parameterType="String" resultType="Queue">
+        select * from queue_info where queue_no=#{queueNo}
+    </select>
+    <select id="query" resultType="Queue">
+        select * from queue_info order by queue_no desc
+    </select>
+    <!--查询当天某个业务的最后一条记录-->
+    <select id="findLastQueueNoByBusiType" parameterType="String" resultType="String">
+        select queue_no from queue_info where busi_type=#{busiType} order by queue_no desc limit 1
+    </select>
+    <!--叫号-->
+    <select id="callQueue" parameterType="String" resultType="String">
+        select queue_no from queue_info where queue_status='0' and busi_type=#{busiType} order by queue_no limit 1
+    </select>
+    <!--更新票的状态-->
+    <update id="modStatus" parameterType="String">
+        update Queue_info set queue_status='1' where queue_no=#{queueNo}
+    </update>
+    <!--查询某种业务的未叫的票，存储到缓存redis中-->
+    <select id="findNoCallByBusiType" parameterType="String" resultType="String">
+        select queue_no from queue_info where busi_type=#{busiType} and queue_status='0' order by queue_no
+    </select>
+
+</mapper>

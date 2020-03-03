@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.etc.dao.ClaDao">
+    <insert id="add" parameterType="Cla" useGeneratedKeys="true" keyProperty="cid">
+        insert into cla(cname) values(#{cname})
+    </insert>
+    <update id="mod" parameterType="Cla">
+        update cla set cname=#{cname} where cid=#{cid}
+    </update>
+    <delete id="del" parameterType="int">
+        delete from cla where cid = #{cid}
+    </delete>
+    <select id="get" parameterType="int" resultType="Cla">
+        select * from cla where cid=#{cid}
+    </select>
+    <select id="query" resultType="Cla">
+        select * from Cla order by cid desc
+    </select>
+</mapper>
