@@ -1,5 +1,6 @@
 package com.etc.entity;
 
+//班级实体类
 public class Cla {
     private Integer cid;
     private String cname;
