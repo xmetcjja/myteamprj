@@ -1,6 +1,6 @@
 package com.etc.entity;
 
-//班级实体类123
+//班级实体类1234
 public class Cla {
     private Integer cid;
     private String cname;
